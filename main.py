@@ -182,7 +182,7 @@ def send_mail_ozon(value: int, cookie: str) -> str:
         tema = case["id"]
         body = f"""<p><b>Текст вопроса:</b> {case['text']}</p>
 <br>
-<p><b>Ссылка на товар OZON:</b> <a href="firefox:{case['product']['url']}">firefox:{case['product']['url']}</a></p>
+<p><b>Ссылка на товар OZON:</b> <a href="firefox:{case['product']['url']}">{case['product']['url']}</a></p>
 <br>
 <p>Название бренда: {case['brand_info']['name']}</p>
 <p>ID вопроса: {case['id']}</p>
