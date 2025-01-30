@@ -8,19 +8,21 @@ import boto3
 from typing import List
 
 
-bucket_name = "name"  # Название бакета
-file_name = "name.txt"  # Название файла с куки в бакете
+#==========================================================#
+BUCKET_NAME = "name"  # Название бакета
+FILE_NAME = "name.txt"  # Название файла с куки в бакете
 AWS_ACCESS_KEY_ID = "key-id"  # key id для доступа в бакет
 AWS_SECRET_ACCESS_KEY = "key"  # key для доступа в бакет
-region = "region"  # регион, обычно "ru-central1"
-company_id = "123456"  # id компании, можно посмотреть на странице компании (например https://www.ozon.ru/seller/ooo-mebelnaya-fabrika-volzhanka-1234/products/?miniapp=seller_1234 - id компании 1234)
-fromaddr = "example1@mail.ru"  # почта, с которой будет уходить письмо
-mypass = "password"  # пароль от почты для внешних приложений
-toaddr = "example2@mail.ru"  # почта, на которую отправлять письмо
-questions_sum = (
+REGION = "region"  # регион, обычно "ru-central1"
+COMPANY_ID = "123456"  # id компании, можно посмотреть на странице компании (например https://www.ozon.ru/seller/ooo-mebelnaya-fabrika-volzhanka-1234/products/?miniapp=seller_1234 - id компании 1234)
+FROM_ADDR = "example1@mail.ru"  # почта, с которой будет уходить письмо
+MAIL_PASSWORD = "password"  # пароль от почты для внешних приложений
+TO_ADDR = "example2@mail.ru"  # почта, на которую отправлять письмо
+QUESTIONS_SUM = (
     10  # количество кейсов, которые необходимо отправить (1 кейс = 10 вопросов)
 )
-cookie = "cookie"  # куки
+COOKIE = "cookie"  # куки
+#==========================================================#
 
 
 # Обновляет куки в бакете Yandex Cloud
@@ -36,13 +38,13 @@ def change_cookie_bucket(cookie: str) -> None:
                 endpoint_url="https://storage.yandexcloud.net",
                 aws_access_key_id=AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-                region_name=region,
+                region_name=REGION,
             )
 
             # Загружаем новое содержимое файла
             response = s3.put_object(
-                Bucket=bucket_name,
-                Key=file_name,
+                Bucket=BUCKET_NAME,
+                Key=FILE_NAME,
                 Body=cookie.encode("utf-8"),
                 ContentType="text/plain",  # Content-Type файла
             )
@@ -50,7 +52,7 @@ def change_cookie_bucket(cookie: str) -> None:
             # Проверяем успешность операции
             if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
                 print(
-                    f"File '{file_name}' successfully updated in Yandex Object Storage."
+                    f"File '{FILE_NAME}' successfully updated in Yandex Object Storage."
                 )
                 return  # Выходим из функции, если файл успешно загружен
             else:
@@ -89,7 +91,7 @@ def get_answers(value_cases: int, cookie: str) -> List[dict]:
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-origin",
         "X-O3-App-Name": "seller-ui",
-        "X-O3-Company-Id": company_id,
+        "X-O3-Company-Id": COMPANY_ID,
         "X-O3-Language": "ru",
         "X-O3-Page-Type": "questions",
         "Cookie": cookie,
@@ -100,7 +102,7 @@ def get_answers(value_cases: int, cookie: str) -> List[dict]:
     last_id = "0"
     last_published = None
     body = {
-        "sc_company_id": company_id,
+        "sc_company_id": COMPANY_ID,
         "with_brands": False,
         "with_counters": False,
         "company_type": "seller",
@@ -191,11 +193,11 @@ def send_mail_ozon(value: int, cookie: str) -> str:
 <p>Артикул наш сайт: {case['product']['offer_id']}</p>
 <p>Название товара: {case['product']['title']}</p>
 """
-        print(f"Начинаю отправку сообщения(кейса) на email {toaddr}.")
+        print(f"Начинаю отправку сообщения(кейса) на email {TO_ADDR}.")
 
         msg = MIMEMultipart()
-        msg["From"] = fromaddr
-        msg["To"] = toaddr
+        msg["From"] = FROM_ADDR
+        msg["To"] = TO_ADDR
         msg["Subject"] = tema
         msg.attach(MIMEText(body, "html"))
 
@@ -206,9 +208,9 @@ def send_mail_ozon(value: int, cookie: str) -> str:
         for i in range(max_retries):
             try:
                 server = smtplib.SMTP_SSL("smtp.mail.ru", 465)
-                server.login(fromaddr, mypass)
+                server.login(FROM_ADDR, MAIL_PASSWORD)
                 text = msg.as_string()
-                server.sendmail(fromaddr, toaddr, text)
+                server.sendmail(FROM_ADDR, TO_ADDR, text)
                 server.quit()
                 case_sent = True
                 current_index = cases.index(case)
@@ -239,4 +241,4 @@ def send_mail_ozon(value: int, cookie: str) -> str:
 
 
 if __name__ == "__main__":
-    send_mail_ozon(questions_sum, cookie)
+    send_mail_ozon(QUESTIONS_SUM, COOKIE)
