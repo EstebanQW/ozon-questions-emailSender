@@ -1,14 +1,14 @@
-import requests
-import time
 import random
 import smtplib
+import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import boto3
 from typing import List
 
+import boto3
+import requests
 
-#==========================================================#
+# ==========================================================#
 BUCKET_NAME = "name"  # Название бакета
 FILE_NAME = "name.txt"  # Название файла с куки в бакете
 AWS_ACCESS_KEY_ID = "key-id"  # key id для доступа в бакет
@@ -22,7 +22,7 @@ QUESTIONS_SUM = (
     10  # количество кейсов, которые необходимо отправить (1 кейс = 10 вопросов)
 )
 COOKIE = "cookie"  # куки
-#==========================================================#
+# ==========================================================#
 
 
 # Обновляет куки в бакете Yandex Cloud
@@ -151,10 +151,10 @@ def get_answers(value_cases: int, cookie: str) -> List[dict]:
                 print(f"Ошибка запроса: {err}")
                 retries += 1  # Увеличение счетчика повторных запросов
                 if retries <= max_retries:
-                    print(f"Повторный запрос через 6 секунд...")
+                    print("Повторный запрос через 6 секунд...")
                     time.sleep(6)
                 else:
-                    print(f"Все повторные запросы исчерпаны. Пропускаю...")
+                    print("Все повторные запросы исчерпаны. Пропускаю...")
                     end_time = time.time()
                     execution_time = end_time - start_time
                     execution_time_formatted = time.strftime(
@@ -228,7 +228,7 @@ def send_mail_ozon(value: int, cookie: str) -> str:
                 print(f"Ошибка при отправке письма: {e}. Повторяю отправку...")
                 time.sleep(retry_delay)
         else:
-            print(f"Все попытки отправки письма не увенчались успехом. Ошибка.")
+            print("Все попытки отправки письма не увенчались успехом. Ошибка.")
         if case_sent:
             sent_cases += 1
         time.sleep(1)
